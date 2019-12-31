@@ -2,7 +2,7 @@
 
 	if( isset( $_GET['run'] ) && $_GET['run'] == 'db_update' ) {
 		cau_manual_update();
-		echo '<div id="message" class="updated"><p><b>'.__( 'Datbase update completed' ).'</b></p></div>';
+		echo '<div id="message" class="updated"><p><b>'.__( 'Database update completed' ).'</b></p></div>';
 	}
 	
 	// Date format
@@ -396,7 +396,7 @@ if( cau_incompatiblePlugins() ) { ?>
 
 <?php } ?>
 
-	<table class="cau_status_list widefat striped cau_status_warnings">
+	<table class="autoupdate cau_status_list widefat striped cau_status_warnings">
 
 		<thead>
 			<tr>
@@ -413,13 +413,13 @@ if( cau_incompatiblePlugins() ) { ?>
 				<td>PHP</td>
 				<td><?php echo phpversion(); ?></td>
 			</tr>
-			<tr>
+			<tr <?php if( cau_incorrectDatabaseVersion() ) { echo "class='inactive'"; } ?>>
 				<td>Database</td>
 				<td><?php echo get_option( "cau_db_version" ); ?> <code>(Latest: <?php echo cau_db_version(); ?>)</code></td>
 			</tr>
 			<tr>
 				<td class="cau_status_name"><?php _e( 'Timezone' ); ?></td>
-				<td class="cau_status_active_state"><?php echo get_option('timezone_string'); ?> (GMT <?php echo get_option('gmt_offset'); ?>) - <?php echo date_default_timezone_get(); ?></td>
+				<td class="cau_status_active_state"><?php echo cau_get_proper_timezone(); ?> (GMT <?php echo get_option('gmt_offset'); ?>) - <?php echo date_default_timezone_get(); ?></td>
 			</tr>
 		</tbody>
 

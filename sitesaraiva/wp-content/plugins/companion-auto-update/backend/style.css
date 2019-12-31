@@ -247,7 +247,8 @@ table.rollbacklist td a.versionselectbutton {
 .cau_schedule_input {
 	display: inline-block;
 	vertical-align: middle;
-	width: 40px;
+	width: 50px;
+	padding-top: 5px;
 }
 .cau_schedule_input input {
 	max-width: 100%;

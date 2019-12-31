@@ -5,16 +5,13 @@ Tags: auto, automatic, background, update, updates, updating, automatic updates,
 Requires at least: 3.6.0
 Tested up to: 5.3
 Requires PHP: 5.1
-Stable tag: 3.4.5
+Stable tag: 3.4.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 This plugin automatically updates all plugins, all themes and the wordpress core in the background.
 
 == Description ==
-
-= For every $10 you donate to one of our plugins we’ll donate $10 to team trees. =
-[Read our blog post](https://codeermeneer.nl/blog/companion-supports-teamtrees/)
 
 = Keep your website safe! =
 We understand that you might not always be able to check if your wordpress site has any updates that need to be installed, especially when you maintain multiple websites keeping them up-to-date can be a lot of work.
@@ -71,6 +68,15 @@ Your feedback is what made this plugin what is and what it’ll become so keep t
 4. Keep track of updates with the update log
 
 == Changelog ==
+
+= 3.4.6 (December 31, 2019) =
+* New: Filter themes, just like you do with plugins
+* New: Link to the release notes of the plugin in the email
+* Fixed: Sometimes the pluginfilter wouldn't save when using a lot of plugins
+* Fixed: A few errors regarding emails
+* Fixed: Errors regarding the set timezone
+* Tweak: Changing settings no longer requires page reload to see the changes
+* Few tweaks in code for better performance
 
 = 3.4.5 (November 26, 2019) =
 * Fix: Some of you reported several database errors in version 3.4.4, these are fixed now

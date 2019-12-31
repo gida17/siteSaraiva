@@ -16,4 +16,6 @@ if( isset( $_GET['filter'] ) ) {
 
 <div class='cau_spacing'></div>
 
-<?php cau_fetch_log( 'all', 'table' ); ?>
+<?php 
+
+cau_fetch_log( 'all', 'table' );

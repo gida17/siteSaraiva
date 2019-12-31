@@ -1,12 +1,5 @@
 <?php
 
-$plugin_schedule 	= wp_get_schedule( 'wp_update_plugins' );
-$theme_schedule 	= wp_get_schedule( 'wp_update_themes' );
-$core_schedule 		= wp_get_schedule( 'wp_version_check' );
-$mail_sc 			= wp_get_schedule( 'cau_set_schedule_mail' );
-$cs_hooks_p 		= wp_get_schedule( 'cau_custom_hooks_plugins' );
-$cs_hooks_t 		= wp_get_schedule( 'cau_custom_hooks_themes' );
-
 if( isset( $_POST['submit'] ) ) {
 
 	check_admin_referer( 'cau_save_schedule' );
@@ -107,6 +100,12 @@ if( isset( $_POST['submit'] ) ) {
 
 }
 
+$plugin_schedule 	= wp_get_schedule( 'wp_update_plugins' );
+$theme_schedule 	= wp_get_schedule( 'wp_update_themes' );
+$core_schedule 		= wp_get_schedule( 'wp_version_check' );
+$schedule_mail		= wp_get_schedule( 'cau_set_schedule_mail' );
+$cs_hooks_p 		= wp_get_schedule( 'cau_custom_hooks_plugins' );
+$cs_hooks_t 		= wp_get_schedule( 'cau_custom_hooks_themes' );
 $availableIntervals = wp_get_schedules();
 
 ?>
@@ -124,7 +123,7 @@ $availableIntervals = wp_get_schedules();
 				<th scope="row"><?php _e( 'Plugin update interval', 'companion-auto-update' );?></th>
 				<td>
 					<p>
-						<select name='plugin_schedule' id='plugin_schedule'>
+						<select name='plugin_schedule' id='plugin_schedule' class='schedule_interval'>
 							<?php foreach ( $availableIntervals as $key => $value ) {
 								foreach ( $value as $display => $interval ) {
 									if( $display == 'display' ) {
@@ -145,11 +144,11 @@ $availableIntervals = wp_get_schedules();
 						?>
 
 						<div class='cau_schedule_input'>
-							<input type='text' name='pluginScheduleTimeH' value='<?php echo $setTimePluginsHour; ?>' maxlength='2' >
+							<input type='number' max='23' name='pluginScheduleTimeH' value='<?php echo $setTimePluginsHour; ?>' maxlength='2' >
 						</div><div class='cau_schedule_input_div'>
 							:
 						</div><div class='cau_schedule_input'>
-							<input type='text' name='pluginScheduleTimeM' value='<?php echo $setTimePluginsMin; ?>' maxlength='2' > 
+							<input type='number' max='59' name='pluginScheduleTimeM' value='<?php echo $setTimePluginsMin; ?>' maxlength='2' > 
 						</div><div class='cau_shedule_notation'>
 							<b><?php _e('Time notation: 24H', 'companion-auto-update'); ?></b>
 						</div>
@@ -164,7 +163,7 @@ $availableIntervals = wp_get_schedules();
 				<td>
 					<p>
 
-						<select name='theme_schedule' id='theme_schedule'>
+						<select name='theme_schedule' id='theme_schedule' class='schedule_interval'>
 							<?php foreach ( $availableIntervals as $key => $value ) {
 								foreach ( $value as $display => $interval ) {
 									if( $display == 'display' ) {
@@ -185,11 +184,11 @@ $availableIntervals = wp_get_schedules();
 						?>
 
 						<div class='cau_schedule_input'>
-							<input type='text' name='ThemeScheduleTimeH' value='<?php echo $setTimeThemesHour; ?>' maxlength='2' >
+							<input type='number' max='23' name='ThemeScheduleTimeH' value='<?php echo $setTimeThemesHour; ?>' maxlength='2' >
 						</div><div class='cau_schedule_input_div'>
 							:
 						</div><div class='cau_schedule_input'>
-							<input type='text' name='ThemeScheduleTimeM' value='<?php echo $setTimeThemesMins; ?>' maxlength='2' > 
+							<input type='number' max='59' name='ThemeScheduleTimeM' value='<?php echo $setTimeThemesMins; ?>' maxlength='2' > 
 						</div><div class='cau_shedule_notation'>
 							<b><?php _e('Time notation: 24H', 'companion-auto-update'); ?></b>
 						</div>
@@ -202,7 +201,7 @@ $availableIntervals = wp_get_schedules();
 				<th scope="row"><?php _e( 'Core update interval', 'companion-auto-update' );?></th>
 				<td>
 					<p>
-						<select name='core_schedule' id='core_schedule'>
+						<select name='core_schedule' id='core_schedule' class='schedule_interval'>
 							<?php foreach ( $availableIntervals as $key => $value ) {
 								foreach ( $value as $display => $interval ) {
 									if( $display == 'display' ) {
@@ -223,11 +222,11 @@ $availableIntervals = wp_get_schedules();
 						?>
 
 						<div class='cau_schedule_input'>
-							<input type='text' name='CoreScheduleTimeH' value='<?php echo $setTimeCoreHour; ?>' maxlength='2' >
+							<input type='number' max='23' name='CoreScheduleTimeH' value='<?php echo $setTimeCoreHour; ?>' maxlength='2' >
 						</div><div class='cau_schedule_input_div'>
 							:
 						</div><div class='cau_schedule_input'>
-							<input type='text' name='CoreScheduleTimeM' value='<?php echo $setTimeCoreMins; ?>' maxlength='2' > 
+							<input type='number' max='59' name='CoreScheduleTimeM' value='<?php echo $setTimeCoreMins; ?>' maxlength='2' > 
 						</div><div class='cau_shedule_notation'>
 							<b><?php _e('Time notation: 24H', 'companion-auto-update'); ?></b>
 						</div>
@@ -251,13 +250,13 @@ $availableIntervals = wp_get_schedules();
 							<?php foreach ( $availableIntervals as $key => $value ) {
 								foreach ( $value as $display => $interval ) {
 									if( $display == 'display' ) {
-										echo "<option "; if( $mail_sc == $key ) { echo "selected "; } echo "value='".$key."'>".$interval."</option>"; 
+										echo "<option "; if( $schedule_mail == $key ) { echo "selected "; } echo "value='".$key."'>".$interval."</option>"; 
 									}
 								}
 							} ?>
 						</select>
 					</p>
-					<div class='timeScheduleEmail' <?php if( $mail_sc != 'daily' ) { echo "style='display: none;'"; } ?> >
+					<div class='timeScheduleEmail' <?php if( $schedule_mail != 'daily' ) { echo "style='display: none;'"; } ?> >
 
 						<?php 
 
@@ -268,11 +267,11 @@ $availableIntervals = wp_get_schedules();
 						?>
 
 						<div class='cau_schedule_input'>
-							<input type='text' name='timeScheduleEmailTimeH' value='<?php echo $setTimeEmailHour; ?>' maxlength='2' >
+							<input type='number' max='23' name='timeScheduleEmailTimeH' value='<?php echo $setTimeEmailHour; ?>' maxlength='2' >
 						</div><div class='cau_schedule_input_div'>
 							:
 						</div><div class='cau_schedule_input'>
-							<input type='text' name='timeScheduleEmailTimeM' value='<?php echo $setTimeEmailMins; ?>' maxlength='2' > 
+							<input type='number' max='59' name='timeScheduleEmailTimeM' value='<?php echo $setTimeEmailMins; ?>' maxlength='2' > 
 						</div><div class='cau_shedule_notation'>
 							<b><?php _e('Time notation: 24H', 'companion-auto-update'); ?></b>
 						</div>

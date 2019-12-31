@@ -1,5 +1,40 @@
 <?php
 
+// Get the set timezone
+function cau_get_proper_timezone() {
+
+	// WP 5.3 adds the wp_timezone_string function
+	if ( !function_exists( 'wp_timezone_string' ) ) {
+		return get_option( 'timezone_string' ); 
+	} else {
+		return wp_timezone_string(); 
+	}
+
+
+}
+
+// Copy of the wp_timezone_string for < 5.3 compat
+if ( !function_exists( 'wp_timezone_string' ) ) {
+	function wp_timezone_string() {
+	    $timezone_string = get_option( 'timezone_string' );
+	 
+	    if ( $timezone_string ) {
+	        return $timezone_string;
+	    }
+	 
+	    $offset  = (float) get_option( 'gmt_offset' );
+	    $hours   = (int) $offset;
+	    $minutes = ( $offset - $hours );
+	 
+	    $sign      = ( $offset < 0 ) ? '-' : '+';
+	    $abs_hour  = abs( $hours );
+	    $abs_mins  = abs( $minutes * 60 );
+	    $tz_offset = sprintf( '%s%02d:%02d', $sign, $abs_hour, $abs_mins );
+	 
+	    return $tz_offset;
+	}
+}
+
 // List of incompatible plugins
 function cau_incompatiblePluginlist() {
 
@@ -43,16 +78,18 @@ function cau_pluginHasIssues() {
 		$return 	= true;
 	}
 
+	if( cau_incorrectDatabaseVersion() ) {
+		$return 	= true;
+	}
+
 	return $return;
 }
 function cau_pluginIssueLevels() {
 	
-	if( cau_incompatiblePlugins() OR get_option( 'blog_public' ) == 0 OR checkCronjobsDisabled() ) {
-		$level 		= 'low';
-	}
-
 	if( checkAutomaticUpdaterDisabled() ) {
-		$level 		= 'high';
+		$level = 'high';
+	} else {
+		$level = 'low';
 	}
 
 	return $level;
@@ -79,6 +116,13 @@ function cau_pluginIssueCount() {
 	}
 
 	return $count;
+}
+function cau_incorrectDatabaseVersion() {
+	if( get_option( "cau_db_version" ) != cau_db_version() ) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // Run custom hooks on plugin update
@@ -273,11 +317,25 @@ function active_subtab( $page, $identifier = 'tab' ) {
 }
 
 // List of plugins that should not be updated
-function donotupdatelist() {
+function donotupdatelist( $filter = 'plugins' ) {
 
+	// Select correct database row
+	switch ( $filter ) {
+		case 'themes':
+			$db_table 		= 'notUpdateListTh';
+			break;
+		case 'plugins':
+			$db_table 		= 'notUpdateList';
+			break;
+		default:
+			$db_table 		= 'notUpdateList';
+			break;
+	}
+
+	// Create list
 	global $wpdb;
-	$table_name 	= $wpdb->prefix . "auto_updates"; 
-	$config 		= $wpdb->get_results( "SELECT * FROM {$table_name} WHERE name = 'notUpdateList'");
+	$table_name 	= $wpdb->prefix."auto_updates"; 
+	$config 		= $wpdb->get_results( "SELECT * FROM {$table_name} WHERE name = '{$db_table}'");
 
 	$list 			= $config[0]->onoroff;
 	$list 			= explode( ", ", $list );
@@ -287,6 +345,12 @@ function donotupdatelist() {
 	
 	return $returnList;
 
+}
+function plugins_donotupdatelist() {
+	return donotupdatelist( 'plugins' );
+}
+function themes_donotupdatelist() {
+	return donotupdatelist( 'themes' );
 }
 
 // Show the update log
@@ -576,11 +640,23 @@ function cau_getChangelogUrl( $type, $name, $plugslug ) {
 }
 
 // Only update plugins which are enabled
-function cau_dont_update( $update, $item ) {
+function cau_dontUpdatePlugins( $update, $item ) {
 
-	$plugins = donotupdatelist();
+	$plugins = plugins_donotupdatelist();
 
     if ( in_array( $item->slug, $plugins ) ) {
+    	return false; // Don't update these plugins
+    } else {
+    	return true; // Always update these plugins
+    } 
+
+
+}
+function cau_dontUpdateThemes( $update, $item ) {
+
+	$themes = themes_donotupdatelist();
+
+    if ( in_array( $item->slug, $themes ) ) {
     	return false; // Don't update these plugins
     } else {
     	return true; // Always update these plugins
@@ -721,5 +797,3 @@ function manual_update_check_init() {
 
 }
 add_action( 'admin_footer', 'manual_update_check_init', 1000 );
-
-?>

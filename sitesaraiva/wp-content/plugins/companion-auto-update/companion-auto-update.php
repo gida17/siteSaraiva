@@ -3,7 +3,7 @@
  * Plugin Name: Companion Auto Update
  * Plugin URI: http://codeermeneer.nl/portfolio/companion-auto-update/
  * Description: This plugin auto updates all plugins, all themes and the wordpress core.
- * Version: 3.4.5
+ * Version: 3.4.6
  * Author: Papin Schipper
  * Author URI: http://codeermeneer.nl/
  * Contributors: papin
@@ -56,7 +56,7 @@ function cau_donateUrl() {
 
 // Database version
 function cau_db_version() {
-	return '3.5.0';
+	return '3.5.1';
 }
 function cau_database_creation() {
 
@@ -70,7 +70,7 @@ function cau_database_creation() {
 	$sql = "CREATE TABLE $autoupdates (
 		id INT(9) NOT NULL AUTO_INCREMENT,
 		name VARCHAR(255) NOT NULL,
-		onoroff VARCHAR(255) NOT NULL,
+		onoroff TEXT NOT NULL,
 		UNIQUE KEY id (id)
 	)";
 
@@ -133,6 +133,7 @@ function cau_install_data() {
 
 	// Advanced
 	if( !cau_check_if_exists( 'notUpdateList' ) ) 	$wpdb->insert( $table_name, array( 'name' => 'notUpdateList', 'onoroff' => '' ) );
+	if( !cau_check_if_exists( 'notUpdateListTh' ) ) $wpdb->insert( $table_name, array( 'name' => 'notUpdateListTh', 'onoroff' => '' ) );
 	if( !cau_check_if_exists( 'translations' ) ) 	$wpdb->insert( $table_name, array( 'name' => 'translations', 'onoroff' => 'on' ) );
 	if( !cau_check_if_exists( 'wpemails' ) ) 		$wpdb->insert( $table_name, array( 'name' => 'wpemails', 'onoroff' => 'on' ) );
 
@@ -187,13 +188,13 @@ function cau_frontend() { ?>
 		<?php
 
 		// Make sure the correct timezone is used
-		date_default_timezone_set( get_option( 'timezone_string' ) );
+		date_default_timezone_set( cau_get_proper_timezone() );
 		
 		// Allow only access to these pages
 		$allowedPages 	= array( 
 			'dashboard' 	=> __( 'Dashboard' ), 
 			'schedule' 		=> __( 'Advanced settings', 'companion-auto-update' ), 
-			'pluginlist' 	=> __( 'Select plugins', 'companion-auto-update' ), 
+			'pluginlist' 	=> __( 'Update filter', 'companion-auto-update' ), 
 			'log' 			=> __( 'Update log', 'companion-auto-update' ), 
 			'status' 		=> __( 'Status', 'companion-auto-update' ), 
 			'support' 		=> __( 'Support', 'companion-auto-update' )
@@ -327,7 +328,7 @@ class CAU_auto_update {
 		$configs = $wpdb->get_results( "SELECT * FROM {$table_name} WHERE name = 'plugins'");
 		foreach ( $configs as $config ) {
 
-			if( $config->onoroff == 'on' ) add_filter( 'auto_update_plugin', 'cau_dont_update', 10, 2 ); // Turn on
+			if( $config->onoroff == 'on' ) add_filter( 'auto_update_plugin', 'cau_dontUpdatePlugins', 10, 2 ); // Turn on
 			if( $config->onoroff != 'on' ) add_filter( 'auto_update_plugin', '__return_false', 1 ); // Turn off
 
 		}
@@ -335,7 +336,7 @@ class CAU_auto_update {
 		// Enable for themes
 		$configs = $wpdb->get_results( "SELECT * FROM {$table_name} WHERE name = 'themes'");
 		foreach ( $configs as $config ) {
-			if( $config->onoroff == 'on' ) add_filter( 'auto_update_theme', '__return_true', 1 ); // Turn on
+			if( $config->onoroff == 'on' ) add_filter( 'auto_update_theme', 'cau_dontUpdateThemes', 1 ); // Turn on
 			if( $config->onoroff != 'on' ) add_filter( 'auto_update_theme', '__return_false', 1 ); // Turn off
 		}
 
@@ -390,5 +391,3 @@ function cau_checkForIssuesStyle() {
 
 }
 add_action( 'admin_enqueue_scripts', 'cau_checkForIssuesStyle', 100 );
-
-?>

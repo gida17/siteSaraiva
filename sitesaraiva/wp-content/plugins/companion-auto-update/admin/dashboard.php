@@ -1,13 +1,13 @@
 <?php 
 
 	if ( !wp_next_scheduled ( 'cau_set_schedule_mail' ) ) {
-		echo '<div id="message" class="error"><p><b>'.__('Companion Auto Update was not able to set the event for sending you emails, please re-activate the plugin in order to set the event', 'companion-auto-update').'.</b></p></div>';
+		echo '<div id="message" class="error"><p><b>'.__( 'Companion Auto Update was not able to set the event for sending you emails, please re-activate the plugin in order to set the event', 'companion-auto-update' ).'.</b></p></div>';
 	}
 
-	if ( get_site_option( 'cau_db_version' ) != cau_db_version() ) {
-		echo '<div id="message" class="error"><p><b>'.__( 'Companion Auto Update Database Update', 'companion-auto-update' ).' &ndash;</b> 
-		'.__( 'We need you to update to the latest database version', 'companion-auto-update' ).'. <a href="'.cau_url( 'status' ).'&run=db_update" class="button button-alt" style="background: #FFF;">'.__( 'Run updater now', 'companion-auto-update' ).'</a></p></div>';
-	}
+	if ( cau_incorrectDatabaseVersion() ) {
+            echo '<div id="message" class="error"><p><b>'.__( 'Companion Auto Update Database Update', 'companion-auto-update' ).' &ndash;</b>
+            '.__( 'We need you to update to the latest database version', 'companion-auto-update' ).'. <a href="'.cau_url( 'status' ).'&run=db_update" class="button button-alt" style="background: #FFF;">'.__( 'Run updater now', 'companion-auto-update' ).'</a></p></div>';
+    }
 
 	if( isset( $_POST['submit'] ) ) {
 
@@ -94,12 +94,12 @@
 
 					echo '<p><input id="'.$cau_configs[2]->name.'" name="'.$cau_configs[2]->name.'" type="checkbox"';
 					if( $cau_configs[2]->onoroff == 'on' ) echo 'checked';
-					echo '/> <label for="'.$cau_configs[2]->name.'">'.__('Auto update minor core updates?', 'companion-auto-update').' <code class="majorMinorExplain">4.0.0 > 4.0.1</code></label></p>';
+					echo '/> <label for="'.$cau_configs[2]->name.'">'.__('Auto update minor core updates?', 'companion-auto-update').' <code class="majorMinorExplain">5.3.0 > 5.3.1</code></label></p>';
 
 
 					echo '<p><input id="'.$cau_configs[3]->name.'" name="'.$cau_configs[3]->name.'" type="checkbox"';
 					if( $cau_configs[3]->onoroff == 'on' ) echo 'checked';
-					echo '/> <label for="'.$cau_configs[3]->name.'">'.__('Auto update major core updates?', 'companion-auto-update').' <code class="majorMinorExplain">4.0.0 > 4.1.0</code></label></p>';
+					echo '/> <label for="'.$cau_configs[3]->name.'">'.__('Auto update major core updates?', 'companion-auto-update').' <code class="majorMinorExplain">5.3.0 > 5.4.0</code></label></p>';
 
 					echo '<p><input id="'.$cau_configs[8]->name.'" name="'.$cau_configs[8]->name.'" type="checkbox"';
 					if( $cau_configs[8]->onoroff == 'on' ) echo 'checked';
